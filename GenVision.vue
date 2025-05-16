@@ -701,7 +701,7 @@ export default {
 
 .attribution:hover {
   opacity: 1;
-  color: #aaa; /* Slightly lighter gray on hover */
+  color: #aaa;
 }
 
 @media (max-width: 768px) {
@@ -709,10 +709,10 @@ export default {
     font-size: 0.7rem;
     bottom: 15px;
     right: 15px;
-    background: rgba(0,0,0,0.3); /* Semi-transparent background for mobile */
+    background: rgba(0,0,0,0.3); 
     padding: 4px 8px;
     border-radius: 4px;
-    color: #ccc; /* Lighter gray for mobile */
+    color: #ccc; 
   }
 }
 
