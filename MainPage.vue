@@ -381,15 +381,15 @@
   right: 20px;
   font-size: 0.8rem;
   opacity: 0.7;
-  color: #888; /* Gray color */
+  color: #888; 
   font-family: 'Product Sans', sans-serif;
   transition: opacity 0.3s ease;
-  z-index: 10; /* Ensure it stays above other elements */
+  z-index: 10; 
 }
 
 .attribution:hover {
   opacity: 1;
-  color: #aaa; /* Slightly lighter gray on hover */
+  color: #aaa; 
 }
 
 @media (max-width: 768px) {
@@ -397,10 +397,10 @@
     font-size: 0.7rem;
     bottom: 15px;
     right: 15px;
-    background: rgba(0,0,0,0.3); /* Semi-transparent background for mobile */
+    background: rgba(0,0,0,0.3); 
     padding: 4px 8px;
     border-radius: 4px;
-    color: #ccc; /* Lighter gray for mobile */
+    color: #ccc;
   }
 }
   </style>
