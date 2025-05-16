@@ -7,18 +7,17 @@ from flask import Flask, request, jsonify, send_from_directory
 from segment_anything import sam_model_registry, SamPredictor
 from flask_cors import CORS
 import shutil
-from datetime import datetime  # Added for unique filenames
+from datetime import datetime  
 
 app = Flask(__name__)
 CORS(app)
 
-# Configure upload and processed folders
 UPLOAD_FOLDER = "uploads"
 PROCESSED_FOLDER = "processed"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
-# SAM model configuration
+
 MODEL_CHECKPOINT = "sam_model_vitb.pth"
 MODEL_TYPE = "vit_b"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -46,7 +45,7 @@ def segment_and_save(image_path, bounding_boxes):
     Segments objects in an image based on bounding boxes using SAM.
     Saves each segmented object as a transparent PNG and returns filenames.
     """
-    # Clear previous processed images
+   
     clear_processed_folder()
 
     # Load image
@@ -54,7 +53,7 @@ def segment_and_save(image_path, bounding_boxes):
     if image is None:
         return {"error": "Image loading failed"}
 
-    # Initialize SAM model
+    
     sam = sam_model_registry[MODEL_TYPE](checkpoint=MODEL_CHECKPOINT)
     sam.to(DEVICE)
     predictor = SamPredictor(sam)
@@ -64,25 +63,25 @@ def segment_and_save(image_path, bounding_boxes):
     base_filename = generate_unique_filename()
     
     for i, bbox in enumerate(bounding_boxes):
-        # Convert bbox to numpy array
+        
         bbox = np.array(bbox, dtype=np.float32)
         
-        # Predict masks
+        
         masks, scores, _ = predictor.predict(box=bbox)
 
-        # Process each mask
+        
         for j, mask in enumerate(masks):
-            # Create binary mask
+            
             binary_mask = (mask > 0).astype(np.uint8) * 255
             
-            # Apply mask to original image
+            
             segmented = cv2.bitwise_and(image, image, mask=binary_mask)
             
-            # Convert to transparent PNG
+            
             transparent = cv2.cvtColor(segmented, cv2.COLOR_BGR2BGRA)
             transparent[:, :, 3] = binary_mask
 
-            # Save image with unique filename
+            
             filename = f"{base_filename}_{i}_{j}.png"
             save_path = os.path.join(PROCESSED_FOLDER, filename)
             cv2.imwrite(save_path, transparent)
@@ -93,11 +92,11 @@ def segment_and_save(image_path, bounding_boxes):
 @app.route("/process", methods=["POST"])
 def process_image():
     """Endpoint for processing image with bounding boxes"""
-    # Validate request
+    
     if "image" not in request.files or "coordinates" not in request.form:
         return jsonify({"error": "Image and coordinates are required"}), 400
 
-    # Save uploaded image
+    
     image_file = request.files["image"]
     if image_file.filename == "":
         return jsonify({"error": "No selected file"}), 400
@@ -105,13 +104,13 @@ def process_image():
     image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
     image_file.save(image_path)
 
-    # Get bounding boxes
+    
     try:
         bounding_boxes = json.loads(request.form["coordinates"])
     except json.JSONDecodeError:
         return jsonify({"error": "Invalid coordinates format"}), 400
 
-    # Process image
+    
     try:
         results = segment_and_save(image_path, bounding_boxes)
         return jsonify(results)
@@ -122,7 +121,7 @@ def process_image():
 def serve_processed_image(filename):
     """Endpoint to serve processed images with no-cache headers"""
     response = send_from_directory(PROCESSED_FOLDER, filename)
-    # Add headers to prevent caching
+    
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '-1'
